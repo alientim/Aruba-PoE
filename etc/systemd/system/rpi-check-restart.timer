@@ -1,0 +1,10 @@
+[Unit]
+Description=Restart RPI Check daily at 00:00
+
+[Timer]
+OnCalendar=*-*-* 00:00:00
+Persistent=true
+Unit=rpi-check-restart.service
+
+[Install]
+WantedBy=timers.target
