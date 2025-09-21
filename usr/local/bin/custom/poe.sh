@@ -1,7 +1,7 @@
 #!/bin/bash
 
-USER="admin"
-PASS="Expl0rer#2022"
+USER=""
+PASS=""
 IP_FILE="/usr/local/bin/custom/ips.list"
 LOGFILE="/var/log/rpi-$(date '+%Y%m%d%H%M%S').log"
 
