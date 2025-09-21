@@ -1,0 +1,6 @@
+[Unit]
+Description=Restart rpi-check.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/systemctl restart rpi-check.service
