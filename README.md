@@ -6,6 +6,11 @@ dieser Service ist in der Lage IPs zu Pingen und entsprechend daran POE auf vorg
 zu Aktivieren bzw. Deaktivieren.
 ```
 
+## Wichtig:
+
+User und Passwort setzen!
+/usr/local/bin/custom/poe.sh
+
 Download:
 
 ```bash
