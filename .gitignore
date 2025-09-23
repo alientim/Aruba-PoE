@@ -6,6 +6,8 @@
 
 # Tracke nur .sh Dateien in webhookd/scripts/
 # Erlaube webhookd und scripts Ordner
-!webhookd/
-!webhookd/scripts/
-!webhookd/scripts/*.sh
+!etc/
+!etc/systemd/
+!etc/systemd/system
+!etc/systemd/system/rpi*.service
+!etc/systemd/system/rpi*.timer
