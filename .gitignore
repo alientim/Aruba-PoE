@@ -1,13 +1,12 @@
-# Ignoriere alles
 *
-
-# Tracke nur Dateien **eine Ebene tief**
 !/*.gitignore
-
-# Tracke nur .sh Dateien in webhookd/scripts/
-# Erlaube webhookd und scripts Ordner
 !etc/
 !etc/systemd/
 !etc/systemd/system
 !etc/systemd/system/rpi*.service
 !etc/systemd/system/rpi*.timer
+!usr/
+!usr/local/
+!usr/local/bin/
+!usr/local/bin/custom/
+!usr/local/bin/custom/*
