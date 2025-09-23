@@ -1,0 +1,11 @@
+# Ignoriere alles
+*
+
+# Tracke nur Dateien **eine Ebene tief**
+!/*.gitignore
+
+# Tracke nur .sh Dateien in webhookd/scripts/
+# Erlaube webhookd und scripts Ordner
+!webhookd/
+!webhookd/scripts/
+!webhookd/scripts/*.sh
