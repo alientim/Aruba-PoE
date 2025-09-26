@@ -105,26 +105,40 @@ def index():
 
     return render_template("index.html", devices=devices, status=status_dict)
 
-@app.route('/settings', methods=['GET', 'POST'])
+@app.route("/settings", methods=["GET", "POST"])
 @login_required
 def settings():
     if not current_user.is_admin:
-        flash("Zugriff verweigert!")
-        return redirect(url_for('index'))
+        flash("Nur Admins dürfen die Einstellungen ändern!")
+        return redirect(url_for("index"))
 
-    conn = get_db_connection()
-    interval_row = conn.execute("SELECT value FROM settings WHERE key='check_interval'").fetchone()
-    interval_min = int(interval_row['value']) // 60 if interval_row else 5  # Standard 5 Minuten
-
-    if request.method == 'POST':
-        new_interval_min = int(request.form['interval'])
-        conn.execute("INSERT OR REPLACE INTO settings (key, value) VALUES ('check_interval', ?)", (new_interval_min*60,))
-        conn.commit()
-        flash(f"Intervall auf {new_interval_min} Minuten gesetzt.")
-        interval_min = new_interval_min
-
+    # Aktuellen Prüfintervall laden
+    conn = sqlite3.connect("sqlite.db")
+    c = conn.cursor()
+    c.execute("SELECT value FROM settings WHERE key='interval'")
+    row = c.fetchone()
+    interval = int(row[0]) if row else 5  # Default 5 Minuten
     conn.close()
-    return render_template('settings.html', interval=interval_min)
+
+    if request.method == "POST":
+        new_interval = int(request.form["interval"])
+        conn = sqlite3.connect("sqlite.db")
+        c = conn.cursor()
+        # upsert
+        c.execute("INSERT INTO settings (key, value) VALUES (?, ?) "
+                  "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+                  ("interval", new_interval))
+        conn.commit()
+        conn.close()
+
+        # rpi-check.service neu starten
+        import subprocess
+        subprocess.run(["systemctl", "restart", "rpi-check.service"])
+
+        flash(f"Intervall auf {new_interval} Minuten gesetzt und Service neu gestartet!")
+        return redirect(url_for("settings"))
+
+    return render_template("settings.html", interval=interval)
 
 @app.route('/devices', methods=['GET', 'POST'])
 @login_required

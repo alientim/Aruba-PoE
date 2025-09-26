@@ -3,6 +3,16 @@
 
 <h2>Settings</h2>
 
+<form method="post" class="row g-2">
+    <div class="col-auto">
+        <label for="interval" class="form-label">Prüfintervall (Minuten):</label>
+        <input type="number" name="interval" id="interval" class="form-control" value="{{ interval }}" min="1" required>
+    </div>
+    <div class="col-auto align-self-end">
+        <button type="submit" class="btn btn-success">Speichern & Service neustarten</button>
+    </div>
+</form>
+
 {% with messages = get_flashed_messages() %}
   {% if messages %}
     <div class="mt-2 alert alert-info">
@@ -10,15 +20,5 @@
     </div>
   {% endif %}
 {% endwith %}
-
-<form method="post" class="row g-3">
-    <div class="col-md-4">
-        <label for="interval" class="form-label">Prüfintervall (Minuten)</label>
-        <input type="number" class="form-control" id="interval" name="interval" value="{{ interval }}" min="1" required>
-    </div>
-    <div class="col-12">
-        <button class="btn btn-primary">Speichern</button>
-    </div>
-</form>
 
 {% endblock %}
