@@ -17,6 +17,9 @@ __pycache__/
 !etc/systemd/system/
 !etc/systemd/system/rpi*.service
 !etc/systemd/system/rpi*.timer
+!etc/nginx/
+!etc/nginx/sites-enabled/
+!etc/nginx/sites-enabled/default
 
 # Custom Scripts tracken
 !usr/
