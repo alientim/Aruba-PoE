@@ -3,7 +3,10 @@ Description=RPI Ping Check
 After=network.target
 
 [Service]
-ExecStart=/usr/local/bin/custom/poe.sh
+Type=simple
+User=root
+WorkingDirectory=/srv/poe_manager
+ExecStart=/srv/poe_manager/venv/bin/python3 /srv/poe_manager/poe_wrapper.py
 Restart=always
 RestartSec=5
 

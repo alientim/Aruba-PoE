@@ -82,19 +82,28 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-@app.route('/')
+@app.route("/")
 @login_required
 def index():
-    devices = get_devices()  # alle Devices aus der DB
-    status = load_device_status()
-    
-    # Standardstatus, falls Gerät im Log noch nicht auftaucht
-    for d in devices:
-        if d['name'] not in status:
-            status[d['name']] = 'offline'
+    conn = sqlite3.connect("sqlite.db")
+    c = conn.cursor()
+    c.execute("SELECT mac, name FROM devices")
+    devices = c.fetchall()
+    conn.close()
 
-    interval_min = get_interval_seconds() // 60
-    return render_template('index.html', devices=devices, status=status, interval=interval_min)
+    # Status aus letztem Log ermitteln
+    import glob, os
+    log_files = glob.glob("/var/log/rpi-*.log")
+    status_dict = {}
+    if log_files:
+        latest_log = max(log_files, key=os.path.getctime)
+        with open(latest_log, "r") as f:
+            for line in f:
+                for dev in devices:
+                    if dev[1] in line:
+                        status_dict[dev[0]] = "online" if "erreichbar" in line else "offline"
+
+    return render_template("index.html", devices=devices, status=status_dict)
 
 @app.route('/settings', methods=['GET', 'POST'])
 @login_required
