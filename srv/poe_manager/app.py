@@ -2,8 +2,10 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin, current_user
 from flask_bcrypt import Bcrypt
+from werkzeug.security import generate_password_hash
 from cryptography.fernet import Fernet
 import sqlite3
+import glob, os, re
 
 app = Flask(__name__)
 app.secret_key = "309cc4d5ce1fe7486ae25cbd232bbdfe6a72539c03f0127d372186dbdc0fc928"
@@ -235,10 +237,22 @@ def switches():
 
     switches = conn.execute("SELECT hostname, ip, username FROM switches").fetchall()
     conn.close()
-    return render_template('switches.html', switches=switches)
+    return render_template('switche.html', switches=switches)
 
-import glob
-import os
+@app.route("/get_log")
+@login_required
+def get_log():
+    log_files = glob.glob("/var/log/rpi-*.log")
+    if not log_files:
+        return "Keine Logfiles gefunden."
+
+    latest_log = max(log_files, key=os.path.getctime)
+
+    try:
+        with open(latest_log, "r") as f:
+            return f.read()
+    except Exception as e:
+        return f"Fehler beim Lesen des Logs: {e}"
 
 @app.route('/logs')
 @login_required
@@ -258,8 +272,6 @@ def logs():
         log_content = f"Fehler beim Lesen des Logs: {e}"
 
     return render_template('logs.html', log_content=log_content, log_name=os.path.basename(latest_log))
-
-import glob, os, re
 
 def load_device_status():
     """
@@ -291,6 +303,53 @@ def load_device_status():
             status[m_offline.group(1)] = 'offline'
 
     return status
+
+@app.route("/users", methods=["GET", "POST"])
+@login_required
+def users():
+    if not current_user.is_admin:
+        flash("Nur Admins dürfen Benutzer verwalten!")
+        return redirect(url_for("index"))
+
+    conn = sqlite3.connect("sqlite.db")
+    conn.row_factory = sqlite3.Row  # wichtig für Template
+    c = conn.cursor()
+
+    # Neues Benutzer hinzufügen
+    if request.method == "POST":
+        if "add_user" in request.form:
+            username = request.form["username"]
+            password = generate_password_hash(request.form["password"])
+            is_admin = 1 if "is_admin" in request.form else 0
+            try:
+                c.execute("INSERT INTO users (username, password, is_admin) VALUES (?, ?, ?)",
+                          (username, password, is_admin))
+                conn.commit()
+                flash(f"Benutzer {username} hinzugefügt!")
+            except sqlite3.IntegrityError:
+                flash("Benutzername existiert bereits!")
+
+        if "delete_user" in request.form:
+            user_id = request.form["delete_user"]
+            c.execute("DELETE FROM users WHERE id=?", (user_id,))
+            conn.commit()
+            flash("Benutzer gelöscht!")
+
+        if "edit_user" in request.form:
+            user_id = request.form["user_id"]
+            username = request.form["username"]
+            is_admin = 1 if "is_admin" in request.form else 0
+            c.execute("UPDATE users SET username=?, is_admin=? WHERE id=?",
+                      (username, is_admin, user_id))
+            conn.commit()
+            flash("Benutzer geändert!")
+
+    # Alle Benutzer laden
+    c.execute("SELECT id, username, is_admin FROM users")
+    users_list = c.fetchall()
+    conn.close()
+
+    return render_template("users.html", users=users_list)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)

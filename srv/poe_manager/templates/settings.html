@@ -1,13 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Einstellungen</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body class="p-5">
+{% extends "base.html" %}
+{% block content %}
 
-<h2>PoE-Check Intervall</h2>
-<a href="{{ url_for('index') }}" class="btn btn-secondary mb-3">Zurück zum Dashboard</a>
+<h2>Settings</h2>
 
 {% with messages = get_flashed_messages() %}
   {% if messages %}
@@ -17,15 +11,14 @@
   {% endif %}
 {% endwith %}
 
-<form method="post" class="row g-2">
-    <div class="col-auto">
-        <label for="interval" class="form-label">Intervall (Minuten)</label>
-        <input type="number" name="interval" id="interval" class="form-control" value="{{ interval }}" min="1" required>
+<form method="post" class="row g-3">
+    <div class="col-md-4">
+        <label for="interval" class="form-label">Prüfintervall (Minuten)</label>
+        <input type="number" class="form-control" id="interval" name="interval" value="{{ interval }}" min="1" required>
     </div>
-    <div class="col-auto align-self-end">
+    <div class="col-12">
         <button class="btn btn-primary">Speichern</button>
     </div>
 </form>
 
-</body>
-</html>
+{% endblock %}

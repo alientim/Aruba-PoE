@@ -22,3 +22,27 @@ pre {
 .mb-3 a.btn {
     margin-right: 5px;
 }
+
+.device-card {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+    text-align: center;
+    min-width: 150px;
+}
+
+.device-name {
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.status-online {
+    color: green;
+    font-weight: bold;
+}
+
+.status-offline {
+    color: red;
+    font-weight: bold;
+}

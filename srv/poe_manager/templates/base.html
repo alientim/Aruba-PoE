@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title or "PoE Manager" }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="p-4">
+
+<!-- Navbar -->
+<nav class="mb-4">
+    <div class="btn-group" role="group">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Dashboard</a>
+        <a href="{{ url_for('devices') }}" class="btn btn-secondary">Devices</a>
+        {% if current_user.is_admin %}
+            <a href="{{ url_for('switches') }}" class="btn btn-secondary">Switches</a>
+            <a href="{{ url_for('users') }}" class="btn btn-secondary">Users</a>
+            <a href="{{ url_for('logs') }}" class="btn btn-secondary">Live-Log</a>
+            <a href="{{ url_for('settings') }}" class="btn btn-secondary">Settings</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+    </div>
+</nav>
+
+<!-- Content -->
+<div class="container-fluid">
+    {% block content %}{% endblock %}
+</div>
+
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+</body>
+</html>

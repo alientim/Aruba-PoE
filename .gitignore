@@ -34,6 +34,9 @@ __pycache__/
 !/srv/poe_manager/static/
 !/srv/poe_manager/static/css/
 !/srv/poe_manager/static/css/*
+!/srv/poe_manager/static/js/
+!/srv/poe_manager/static/js/*
+
 
 # Optional: SQLite DB ignorieren (falls du nicht willst, dass Passwörter im Repo landen)
 # /srv/poe_manager/sqlite.db

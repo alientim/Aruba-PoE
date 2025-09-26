@@ -1,37 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Live Log</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <meta http-equiv="refresh" content="5"> <!-- automatische Aktualisierung alle 5 Sekunden -->
-</head>
-<body>
+{% extends "base.html" %}
+{% block content %}
 
 <h2>Live Log</h2>
 
-<div class="mb-3">
-    <a href="{{ url_for('index') }}" class="btn btn-secondary">Dashboard</a>
-    <a href="{{ url_for('devices') }}" class="btn btn-secondary">Devices verwalten</a>
-    <a href="{{ url_for('switches') }}" class="btn btn-secondary">Switches verwalten</a>
-</div>
+<div id="log-box" class="border p-3 bg-light" style="height:500px; overflow:auto; white-space: pre-wrap; font-family: monospace;"></div>
 
-<table class="table table-bordered table-striped">
-    <thead class="table-dark">
-        <tr>
-            <th>Timestamp</th>
-            <th>Log</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for line in log_lines %}
-        <tr>
-            {% set parts = line.split(' ', 1) %}
-            <td>{{ parts[0] if parts|length > 0 else '' }}</td>
-            <td>{{ parts[1] if parts|length > 1 else line }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<script>
+function fetchLog() {
+    fetch("{{ url_for('get_log') }}")
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById("log-box").innerText = data;
+            let box = document.getElementById("log-box");
+            box.scrollTop = box.scrollHeight;
+        });
+}
+setInterval(fetchLog, 3000);
+fetchLog();
+</script>
 
-</body>
-</html>
+{% endblock %}

@@ -1,44 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Device Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body class="p-3">
+{% extends "base.html" %}
+{% block content %}
 
-<h2>Device Dashboard</h2>
-
-<div class="mb-3">
-    <a href="{{ url_for('logs') }}" class="btn btn-primary">Live Log</a>
-    <a href="{{ url_for('devices') }}" class="btn btn-secondary">Devices verwalten</a>
-    <a href="{{ url_for('switches') }}" class="btn btn-secondary">Switches verwalten</a>
-    <a href="{{ url_for('settings') }}" class="btn btn-warning">Einstellungen</a>
+<h2>Dashboard</h2>
+<div class="row">
+    {% for d in devices %}
+    <div class="col-md-2 col-sm-4 col-6 mb-3">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">{{ d['name'] }}</h6>
+                {% if d['status'] == 'online' %}
+                    <p class="text-success">Online</p>
+                {% else %}
+                    <p class="text-danger">Offline</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 </div>
 
-<p>Prüfintervall: <strong>{{ interval }} Minuten</strong></p>
-
-<table class="table table-bordered table-striped">
-    <thead class="table-dark">
-        <tr>
-            <th>Device-Name</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for d in devices %}
-        <tr>
-            <td>{{ d['name'] }}</td>
-            <td>
-                {% if status[d['name']] == 'online' %}
-                    <span class="badge bg-success">Online</span>
-                {% else %}
-                    <span class="badge bg-danger">Offline</span>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-</body>
-</html>
+{% endblock %}

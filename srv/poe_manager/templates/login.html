@@ -2,19 +2,32 @@
 <html>
 <head>
     <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="p-5">
-    <h2>Login</h2>
-    <form method="post">
-        <input class="form-control mb-2" name="username" placeholder="Benutzername" required>
-        <input type="password" class="form-control mb-2" name="password" placeholder="Passwort" required>
-        <button class="btn btn-primary">Login</button>
-    </form>
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div class="mt-2 alert alert-danger">{{ messages[0] }}</div>
-      {% endif %}
-    {% endwith %}
+
+<h2>Login</h2>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="mt-2 alert alert-danger">
+        {% for message in messages %}{{ message }}<br>{% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<form method="post" class="w-25">
+    <div class="mb-3">
+        <label class="form-label">Username</label>
+        <input type="text" name="username" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-control" required>
+    </div>
+    <button class="btn btn-primary">Login</button>
+</form>
+
 </body>
 </html>
