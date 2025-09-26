@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Switches</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="p-5">
+
+<h2>Switches</h2>
+<a href="{{ url_for('index') }}" class="btn btn-secondary mb-3">Zurück zum Dashboard</a>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="mt-2 alert alert-info">
+        {% for message in messages %}{{ message }}<br>{% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+{% if current_user.is_admin %}
+<!-- Inline-Add Form -->
+<h4>Neuen Switch hinzufügen</h4>
+<form method="post" class="row g-2 mb-4">
+    <input type="hidden" name="add_switch" value="1">
+    <div class="col"><input type="text" name="hostname" placeholder="Hostname" class="form-control" required></div>
+    <div class="col"><input type="text" name="ip" placeholder="IP" class="form-control" required></div>
+    <div class="col"><input type="text" name="username" placeholder="Username" class="form-control" required></div>
+    <div class="col"><input type="password" name="password" placeholder="Passwort" class="form-control" required></div>
+    <div class="col"><button class="btn btn-success w-100">Hinzufügen</button></div>
+</form>
+{% endif %}
+
+<!-- Switches Table -->
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Hostname</th>
+            <th>IP</th>
+            <th>Username</th>
+            {% if current_user.is_admin %}<th>Aktionen</th>{% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for sw in switches %}
+        <tr>
+            {% if current_user.is_admin %}
+            <!-- Inline-Edit Form -->
+            <form method="post">
+                <input type="hidden" name="edit_switch" value="1">
+                <input type="hidden" name="old_hostname" value="{{ sw['hostname'] }}">
+                <td><input name="hostname" value="{{ sw['hostname'] }}" class="form-control" required></td>
+                <td><input name="ip" value="{{ sw['ip'] }}" class="form-control" required></td>
+                <td><input name="username" value="{{ sw['username'] }}" class="form-control" required></td>
+                <td class="d-flex gap-1">
+                    <button class="btn btn-primary btn-sm">Speichern</button>
+                    <button name="delete_switch" value="{{ sw['hostname'] }}" class="btn btn-danger btn-sm" onclick="return confirm('Willst du den Switch wirklich löschen?');"> Löschen </button>
+                </td>
+            </form>
+            {% else %}
+            <td>{{ sw['hostname'] }}</td>
+            <td>{{ sw['ip'] }}</td>
+            <td>{{ sw['username'] }}</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>

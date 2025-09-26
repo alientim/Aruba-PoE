@@ -29,6 +29,7 @@ __pycache__/
 !/srv/
 !/srv/poe_manager/
 !/srv/poe_manager/*
+!/srv/poe_manager/*/*
 
 # Optional: SQLite DB ignorieren (falls du nicht willst, dass Passwörter im Repo landen)
 # /srv/poe_manager/sqlite.db

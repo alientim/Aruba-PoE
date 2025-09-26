@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Devices</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="p-5">
+
+<h2>Devices</h2>
+<a href="{{ url_for('index') }}" class="btn btn-secondary mb-3">Zurück zum Dashboard</a>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="mt-2 alert alert-info">
+        {% for message in messages %}{{ message }}<br>{% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<p>Prüfintervall: <strong>{{ interval }} Minuten</strong></p>
+
+{% if current_user.is_admin %}
+<!-- Inline-Add Form -->
+<h4>Neues Gerät hinzufügen</h4>
+<form method="post" class="row g-2 mb-4">
+    <input type="hidden" name="add_device" value="1">
+    <div class="col"><input type="text" name="mac" placeholder="MAC" class="form-control" required></div>
+    <div class="col"><input type="text" name="rpi_ip" placeholder="RPI IP" class="form-control" required></div>
+    <div class="col"><input type="text" name="port" placeholder="Port" class="form-control" required></div>
+    <div class="col"><input type="text" name="name" placeholder="Name" class="form-control" required></div>
+    <div class="col">
+        <select name="switch_hostname" class="form-control" required>
+            <option value="">Switch wählen</option>
+            {% for sw in switches %}
+                <option value="{{ sw['hostname'] }}">{{ sw['hostname'] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col"><button class="btn btn-success w-100">Hinzufügen</button></div>
+</form>
+{% endif %}
+
+<!-- Devices Table -->
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>MAC</th>
+            <th>RPI IP</th>
+            <th>Port</th>
+            <th>Name</th>
+            <th>Switch</th>
+            {% if current_user.is_admin %}<th>Aktionen</th>{% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for d in devices %}
+        <tr>
+            {% if current_user.is_admin %}
+            <!-- Inline-Edit Form -->
+            <form method="post">
+                <input type="hidden" name="edit_device" value="1">
+                <input type="hidden" name="old_mac" value="{{ d['mac'] }}">
+                <td><input name="mac" value="{{ d['mac'] }}" class="form-control" required></td>
+                <td><input name="rpi_ip" value="{{ d['rpi_ip'] }}" class="form-control" required></td>
+                <td><input name="port" value="{{ d['port'] }}" class="form-control" required></td>
+                <td><input name="name" value="{{ d['name'] }}" class="form-control" required></td>
+                <td>
+                    <select name="switch_hostname" class="form-control" required>
+                        {% for sw in switches %}
+                            <option value="{{ sw['hostname'] }}" {% if sw['hostname']==d['switch_hostname'] %}selected{% endif %}>
+                                {{ sw['hostname'] }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td class="d-flex gap-1">
+                    <button class="btn btn-primary btn-sm">Speichern</button>
+                    <button name="delete_device" value="{{ d['mac'] }}" class="btn btn-danger btn-sm" onclick="return confirm('Willst du das Gerät wirklich löschen?');"> Löschen </button>
+                </td>
+            </form>
+            {% else %}
+            <td>{{ d['mac'] }}</td>
+            <td>{{ d['rpi_ip'] }}</td>
+            <td>{{ d['port'] }}</td>
+            <td>{{ d['name'] }}</td>
+            <td>{{ d['switch_hostname'] }}</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>
