@@ -28,8 +28,9 @@ __pycache__/
 # Web-App Dateien im poe_manager tracken
 !/srv/
 !/srv/poe_manager/
-!/srv/poe_manager/*
-!/srv/poe_manager/templates/*
+!/srv/poe_manager/*.*
+!/srv/poe_manager/templates/
+!/srv/poe_manager/templates/*.*
 
 # Optional: SQLite DB ignorieren (falls du nicht willst, dass Passwörter im Repo landen)
 # /srv/poe_manager/sqlite.db
