@@ -26,6 +26,7 @@ __pycache__/
 !usr/local/bin/custom/*
 
 # Web-App Dateien im poe_manager tracken
+!/srv/
 !/srv/poe_manager/
 !/srv/poe_manager/*
 
