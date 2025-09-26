@@ -2,12 +2,36 @@
 <html>
 <head>
     <title>Live Log</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <meta http-equiv="refresh" content="5"> <!-- alle 5 Sekunden neu laden -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta http-equiv="refresh" content="5"> <!-- automatische Aktualisierung alle 5 Sekunden -->
 </head>
-<body class="p-3">
-    <h2>Live Log: {{ log_name }}</h2>
-    <a href="{{ url_for('index') }}" class="btn btn-secondary mb-3">Zurück zum Dashboard</a>
-    <pre style="height:80vh; overflow:auto; background:#f8f9fa; padding:10px;">{{ log_content }}</pre>
+<body>
+
+<h2>Live Log</h2>
+
+<div class="mb-3">
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">Dashboard</a>
+    <a href="{{ url_for('devices') }}" class="btn btn-secondary">Devices verwalten</a>
+    <a href="{{ url_for('switches') }}" class="btn btn-secondary">Switches verwalten</a>
+</div>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Timestamp</th>
+            <th>Log</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for line in log_lines %}
+        <tr>
+            {% set parts = line.split(' ', 1) %}
+            <td>{{ parts[0] if parts|length > 0 else '' }}</td>
+            <td>{{ parts[1] if parts|length > 1 else line }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 </body>
 </html>
