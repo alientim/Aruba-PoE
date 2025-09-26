@@ -5,7 +5,7 @@
 !.gitignore
 
 # Virtuelle Umgebung ignorieren
-venv/
+/srv/poe_manager/venv/
 __pycache__/
 
 # Logfiles ignorieren
