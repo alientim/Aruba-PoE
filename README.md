@@ -36,9 +36,3 @@ python create_admin.py
 python app.py --host=0.0.0.0 --port=5000
 ```
 
-#Download:
-```bash
-wget -qO- --header 'Authorization:token bac659e323cdd044bc8677937fa6957833919444' https://gitea.int.eertmoed.net/WiS/Aruba-PoE/archive/latest.tar.gz | tar xvz ; bash /root/aruba-poe/install.sh ;
-```
-
-
