@@ -1,9 +1,3 @@
-
----
-
-## **create_db.py**
-
-```python
 import sqlite3
 
 conn = sqlite3.connect("sqlite.db")
@@ -41,6 +35,17 @@ CREATE TABLE IF NOT EXISTS users (
 );
 """)
 
+# Settings (z.B. Prüfintervall)
+c.execute("""
+CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
+""")
+
+# Standard-Setting: Prüfintervall 5 Minuten
+c.execute("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)", ("interval_minutes", "5"))
+
 conn.commit()
 conn.close()
-print("Datenbank sqlite.db wurde initialisiert.")
+print("Datenbank sqlite.db wurde initialisiert inklusive Settings.")
