@@ -1,12 +1,33 @@
+# Alles ignorieren
 *
-!/*.gitignore
+
+# .gitignore selbst tracken
+!.gitignore
+
+# Virtuelle Umgebung ignorieren
+venv/
+__pycache__/
+
+# Logfiles ignorieren
+*.log
+
+# Systemd Services tracken
 !etc/
 !etc/systemd/
-!etc/systemd/system
+!etc/systemd/system/
 !etc/systemd/system/rpi*.service
 !etc/systemd/system/rpi*.timer
+
+# Custom Scripts tracken
 !usr/
 !usr/local/
 !usr/local/bin/
 !usr/local/bin/custom/
 !usr/local/bin/custom/*
+
+# Web-App Dateien im poe_manager tracken
+!/srv/poe_manager/
+!/srv/poe_manager/*
+
+# Optional: SQLite DB ignorieren (falls du nicht willst, dass Passwörter im Repo landen)
+# /srv/poe_manager/sqlite.db
