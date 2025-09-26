@@ -16,7 +16,7 @@ Die App ermöglicht:
 ```bash
 # Pakete installieren
 sudo apt update
-sudo apt install python3 python3-venv python3-pip nginx sqlite3 git nano
+sudo apt install python3 python3-venv python3-pip nginx sqlite3 git nano -y
 
 # Repo klonen
 git clone https://gitea.int.eertmoed.net/WiS/Aruba-PoE.git /srv/poe_manager
