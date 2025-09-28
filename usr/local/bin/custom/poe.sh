@@ -2,8 +2,6 @@
 
 LOGFILE="/var/log/rpi-$(date '+%Y%m%d%H%M%S').log"
 
-IP_FILE=$(python3 /srv/poe_manager/generate_ips.py)
-
 # Intervall aus DB (Sekunden) abrufen
 SLEEP=$(python3 - <<END
 import sqlite3
