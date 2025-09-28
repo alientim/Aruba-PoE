@@ -302,7 +302,7 @@ def logs():
     except Exception as e:
         log_content = f"Fehler beim Lesen des Logs: {e}"
 
-    return render_template('logs.html', log_content=log_content, log_name=os.path.basename(latest_log))
+    return render_template('logs.html', log_content=log_content, log_name=os.path.basename(latest_log), interval=interval)
 
 def load_device_status():
     """
