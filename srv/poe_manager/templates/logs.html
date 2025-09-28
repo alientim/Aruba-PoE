@@ -6,10 +6,9 @@
 <div id="log-box" class="border p-3 bg-light" style="height:500px; overflow:auto; white-space: pre-wrap; font-family: monospace;"></div>
 
 <script>
-let lastUpdateTime = 0;
+const intervalMinutes = {{ interval | int }};
+const intervalMilliseconds = intervalMinutes * 60 * 1000;
 function fetchLog() {
-    const now = Date.now() / 1000;
-    if (now - lastUpdateTime < 300) return;
     fetch("{{ url_for('get_log') }}")
         .then(response => response.text())
         .then(data => {
@@ -20,12 +19,11 @@ function fetchLog() {
                 .join("\n");
             box.innerText = filteredLines;
             box.scrollTop = box.scrollHeight;
-            lastUpdateTime = now;
         })
         .catch(err => console.error("Fehler beim Laden der Logs:", err));
 }
-setInterval(fetchLog, 5000);
 fetchLog();
+setInterval(fetchLog, intervalMilliseconds);
 </script>
 
 {% endblock %}
