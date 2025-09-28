@@ -280,6 +280,14 @@ def get_log():
 @app.route('/logs')
 @login_required
 def logs():
+    # Intervall aus DB laden
+    conn = sqlite3.connect("sqlite.db")
+    c = conn.cursor()
+    c.execute("SELECT value FROM settings WHERE key='interval'")
+    row = c.fetchone()
+    interval = int(row[0]) if row else 5  # Default 5 Minuten
+    conn.close()
+    
     # alle Logfiles mit Muster rpi-YYYYMMDDHHMMSS.log
     log_files = glob.glob("/var/log/rpi-*.log")
     if not log_files:
