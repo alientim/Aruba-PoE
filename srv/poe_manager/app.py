@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
+#u!/usr/bin/env python3
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin, current_user
 from flask_bcrypt import Bcrypt
-from werkzeug.security import generate_password_hash
 from cryptography.fernet import Fernet
 import sqlite3
 import glob, os, re
@@ -343,43 +342,74 @@ def users():
         return redirect(url_for("index"))
 
     conn = sqlite3.connect("sqlite.db")
-    conn.row_factory = sqlite3.Row  # wichtig für Template
+    conn.row_factory = sqlite3.Row
     c = conn.cursor()
 
-    # Neues Benutzer hinzufügen
     if request.method == "POST":
-        if "add_user" in request.form:
-            username = request.form["username"]
-            password = generate_password_hash(request.form["password"])
-            is_admin = 1 if "is_admin" in request.form else 0
-            try:
-                c.execute("INSERT INTO users (username, password, is_admin) VALUES (?, ?, ?)",
-                          (username, password, is_admin))
-                conn.commit()
-                flash(f"Benutzer {username} hinzugefügt!")
-            except sqlite3.IntegrityError:
-                flash("Benutzername existiert bereits!")
 
-        if "delete_user" in request.form:
+        # Neuen Benutzer hinzufügen
+        if "add_user" in request.form:
+            username = request.form["username"].strip()
+            password = request.form["password"].strip()
+            is_admin = int(request.form.get("is_admin", 0))
+
+            if username and password:
+                pw_hash = bcrypt.generate_password_hash(password).decode("utf-8")
+                try:
+                    c.execute(
+                        "INSERT INTO users (username, password, is_admin) VALUES (?, ?, ?)",
+                        (username, pw_hash, is_admin)
+                    )
+                    conn.commit()
+                    flash(f"Benutzer '{username}' erfolgreich angelegt!")
+                except sqlite3.IntegrityError:
+                    flash("Benutzername existiert bereits!")
+            else:
+                flash("Username und Passwort dürfen nicht leer sein!")
+
+        # Rolle ändern
+        elif "change_role" in request.form:
+            user_id = request.form["user_id"]
+            username = request.form.get("username", "").strip()
+            is_admin = int(request.form.get("is_admin", 0))
+            if username:
+                c.execute(
+                    "UPDATE users SET username=?, is_admin=? WHERE id=?",
+                    (username, is_admin, user_id)
+                )
+                conn.commit()
+                flash("Rolle und Username geändert!")
+            else:
+                flash("Username darf nicht leer sein!")
+
+        # Passwort ändern
+        elif "change_password" in request.form:
+            user_id = request.form["user_id"]
+            new_password = request.form.get("new_password", "").strip()
+            if new_password:
+                pw_hash = bcrypt.generate_password_hash(new_password).decode("utf-8")
+                c.execute(
+                    "UPDATE users SET password=? WHERE id=?",
+                    (pw_hash, user_id)
+                )
+                conn.commit()
+                flash("Passwort erfolgreich geändert!")
+            else:
+                flash("Passwort darf nicht leer sein!")
+
+        # Benutzer löschen
+        elif "delete_user" in request.form:
             user_id = request.form["delete_user"]
             c.execute("DELETE FROM users WHERE id=?", (user_id,))
             conn.commit()
             flash("Benutzer gelöscht!")
 
-        if "edit_user" in request.form:
-            user_id = request.form["user_id"]
-            username = request.form["username"]
-            is_admin = 1 if "is_admin" in request.form else 0
-            c.execute("UPDATE users SET username=?, is_admin=? WHERE id=?",
-                      (username, is_admin, user_id))
-            conn.commit()
-            flash("Benutzer geändert!")
-
-    # Alle Benutzer laden
+    # Alle Benutzer laden (GET oder nach POST)
     c.execute("SELECT id, username, is_admin FROM users")
     users_list = c.fetchall()
     conn.close()
 
+    # Direkt rendern, Flash-Messages werden angezeigt
     return render_template("users.html", users=users_list)
 
 if __name__ == "__main__":

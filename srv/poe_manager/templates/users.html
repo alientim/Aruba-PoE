@@ -5,14 +5,14 @@
 
 {% if current_user.is_admin %}
 <!-- Button Neues User-Popup -->
-<button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#userModal" onclick="openUserModal()">Neuer Benutzer</button>
+<button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#userModal" onclick="openUserModal()">Neuen Benutzer</button>
 {% endif %}
 
 <table class="table table-bordered">
     <thead>
         <tr>
             <th>Username</th>
-            <th>Funktion</th>
+            <th>Rolle</th>
             {% if current_user.is_admin %}<th>Aktionen</th>{% endif %}
         </tr>
     </thead>
@@ -23,8 +23,21 @@
             <td>{% if u['is_admin'] %}Admin{% else %}User{% endif %}</td>
             {% if current_user.is_admin %}
             <td>
-                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#userModal"
-                    onclick="openUserModal({{ u['id'] }}, '{{ u['username'] }}', {{ u['is_admin'] }})">Bearbeiten</button>
+                <!-- Rolle ändern -->
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#roleModal"
+                        onclick="openRoleModal({{ u['id'] }}, '{{ u['username'] }}', {{ u['is_admin'] }})">
+                    Rolle ändern
+                </button>
+
+                <!-- Passwort ändern -->
+                <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#passwordModal"
+                        onclick="openPasswordModal({{ u['id'] }}, '{{ u['username'] }}')">
+                    Passwort ändern
+                </button>
+
+                <!-- Benutzer löschen -->
                 <form method="post" style="display:inline;">
                     <button name="delete_user" value="{{ u['id'] }}" class="btn btn-danger btn-sm"
                         onclick="return confirm('Willst du den Benutzer wirklich löschen?');">Löschen</button>
@@ -36,36 +49,95 @@
     </tbody>
 </table>
 
-<!-- Modal -->
+<!-- Modal für neuen Benutzer -->
 <div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <form method="post" id="userForm">
         <div class="modal-header">
-          <h5 class="modal-title" id="userModalTitle">Benutzer</h5>
+          <h5 class="modal-title">Neuen Benutzer anlegen</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-            <input type="hidden" name="user_id" id="user_id">
-            <input type="hidden" name="edit_user" id="edit_user">
             <div class="mb-3">
                 <label>Username</label>
-                <input type="text" name="username" id="modal_username" class="form-control" required>
+                <input type="text" name="username" class="form-control" required>
             </div>
             <div class="mb-3">
                 <label>Passwort</label>
-                <input type="password" name="password" id="modal_password" class="form-control" placeholder="Nur eintragen, wenn Passwort geändert werden soll">
+                <input type="password" name="password" class="form-control" required>
             </div>
             <div class="mb-3">
                 <label>Rolle</label>
-                <select name="is_admin" id="modal_is_admin" class="form-control">
+                <select name="is_admin" class="form-control">
                     <option value="0">User</option>
                     <option value="1">Admin</option>
                 </select>
             </div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-primary">Speichern</button>
+          <button type="submit" name="add_user" value="1" class="btn btn-success">Benutzer anlegen</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal für Rolle ändern -->
+<div class="modal fade" id="roleModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" id="roleForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Rolle ändern</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" name="user_id" id="role_user_id">
+            <div class="mb-3">
+                <label>Username</label>
+                <input type="text" name="username" id="role_username" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label>Rolle</label>
+                <select name="is_admin" id="role_is_admin" class="form-control">
+                    <option value="0">User</option>
+                    <option value="1">Admin</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" name="change_role" value="1" class="btn btn-primary">Rolle ändern</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal für Passwort ändern -->
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" id="passwordForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Passwort ändern</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" name="user_id" id="password_user_id">
+            <div class="mb-3">
+                <label>Username</label>
+                <input type="text" name="username" id ="password_username" class="form-control" readonly>
+            </div>
+            <div class="mb-3">
+                <label>Neues Passwort</label>
+                <input type="password" name="new_password" class="form-control" required>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" name="change_password" value="1" class="btn btn-warning">Passwort ändern</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
         </div>
       </form>
@@ -74,13 +146,21 @@
 </div>
 
 <script>
-function openUserModal(id=null, username='', is_admin=0) {
-    document.getElementById('user_id').value = id || '';
-    document.getElementById('modal_username').value = username || '';
-    document.getElementById('modal_password').value = '';
-    document.getElementById('modal_is_admin').value = is_admin;
-    document.getElementById('edit_user').value = id ? 1 : '';
-    document.getElementById('userModalTitle').innerText = id ? 'Benutzer bearbeiten' : 'Neuen Benutzer anlegen';
+function openUserModal() {
+    document.getElementById('userForm').reset();
+}
+
+function openRoleModal(user_id, username, is_admin) {
+    document.getElementById('role_user_id').value = user_id;
+    document.getElementById('role_username').value = username;
+    document.getElementById('role_is_admin').value = is_admin;
+}
+
+function openPasswordModal(user_id, username) {
+    document.getElementById('password_user_id').value = user_id;
+    document.getElementById('password_username').value = username;
+    // Nur das Passwort-Feld zurücksetzen
+    document.querySelector("#passwordForm input[name='new_password']").value = "";
 }
 </script>
 

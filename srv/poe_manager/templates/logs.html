@@ -3,11 +3,18 @@
 
 <h2>Live Log</h2>
 
-<div id="log-box" class="border p-3 bg-light" style="height:500px; overflow:auto; white-space: pre-wrap; font-family: monospace;"></div>
+<div id="log-container">
+    <div id="log-box"></div>
+    <div id="refresh-timer">
+        Nächstes Update in <span id="timer"></span> Sekunden
+    </div>
+</div>
 
 <script>
 const intervalMinutes = {{ interval | int }};
 const intervalMilliseconds = intervalMinutes * 60 * 1000;
+let lastUpdateTime = Date.now();
+
 function fetchLog() {
     fetch("{{ url_for('get_log') }}")
         .then(response => response.text())
@@ -19,9 +26,19 @@ function fetchLog() {
                 .join("\n");
             box.innerText = filteredLines;
             box.scrollTop = box.scrollHeight;
+            lastUpdateTime = Date.now();
         })
         .catch(err => console.error("Fehler beim Laden der Logs:", err));
 }
+
+function updateTimer() {
+    const now = Date.now();
+    const remainingMs = intervalMilliseconds - (now - lastUpdateTime);
+    const remainingSec = Math.max(Math.ceil(remainingMs / 1000), 0);
+    document.getElementById("timer").innerText = remainingSec;
+}
+
+setInterval(updateTimer, 1000);
 fetchLog();
 setInterval(fetchLog, intervalMilliseconds);
 </script>
