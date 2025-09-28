@@ -14,7 +14,11 @@ function fetchLog() {
         .then(response => response.text())
         .then(data => {
             const box = document.getElementById("log-box");
-            box.innerText = data;
+            const filteredLines = data
+                .split("\n")
+                .filter(line => !line.includes("ist erreichbar!"))
+                .join("\n");
+            box.innerText = filteredLines;
             box.scrollTop = box.scrollHeight;
             lastUpdateTime = now;
         })
