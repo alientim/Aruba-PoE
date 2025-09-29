@@ -47,7 +47,7 @@ def get_devices():
     Liefert eine Liste aller Devices aus der Datenbank als Dictionaries.
     """
     conn = get_db_connection()
-    devices = conn.execute("SELECT mac, rpi_ip, port, name, switch_hostname FROM devices").fetchall()
+    devices = conn.execute("SELECT mac, rpi_ip, port, name, switch_hostname, is_active FROM devices").fetchall()
     conn.close()
     return devices
 
@@ -150,14 +150,19 @@ def devices():
         if not current_user.is_admin:
             flash("Zugriff verweigert!")
             return redirect(url_for('devices'))
+
         mac = request.form['mac']
         rpi_ip = request.form['rpi_ip']
         port = request.form['port']
         name = request.form['name']
         switch_hostname = request.form['switch_hostname']
+        is_active = 1 if 'is_active' in request.form else 0
+
         try:
-            conn.execute("INSERT INTO devices (mac, rpi_ip, port, name, switch_hostname) VALUES (?, ?, ?, ?, ?)",
-                         (mac, rpi_ip, port, name, switch_hostname))
+            conn.execute("""
+                INSERT INTO devices (mac, rpi_ip, port, name, switch_hostname, is_active)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (mac, rpi_ip, port, name, switch_hostname, is_active))
             conn.commit()
             flash(f"Gerät {name} hinzugefügt.")
         except sqlite3.IntegrityError:
@@ -168,18 +173,21 @@ def devices():
         if not current_user.is_admin:
             flash("Zugriff verweigert!")
             return redirect(url_for('devices'))
+
         old_mac = request.form['old_mac']
         mac = request.form['mac']
         rpi_ip = request.form['rpi_ip']
         port = request.form['port']
         name = request.form['name']
         switch_hostname = request.form['switch_hostname']
+        is_active = 1 if 'is_active' in request.form else 0
+
         try:
             conn.execute("""
                 UPDATE devices
-                SET mac=?, rpi_ip=?, port=?, name=?, switch_hostname=?
+                SET mac=?, rpi_ip=?, port=?, name=?, switch_hostname=?, is_active=?
                 WHERE mac=?
-            """, (mac, rpi_ip, port, name, switch_hostname, old_mac))
+            """, (mac, rpi_ip, port, name, switch_hostname, is_active, old_mac))
             conn.commit()
             flash(f"Gerät {name} aktualisiert.")
         except sqlite3.IntegrityError:
@@ -196,10 +204,12 @@ def devices():
         flash(f"Gerät {del_mac} gelöscht.")
 
     devices = conn.execute("""
-        SELECT devices.mac, devices.rpi_ip, devices.port, devices.name, switches.hostname AS switch_hostname
+        SELECT devices.mac, devices.rpi_ip, devices.port, devices.name, devices.is_active,
+               switches.hostname AS switch_hostname
         FROM devices
         JOIN switches ON devices.switch_hostname = switches.hostname
     """).fetchall()
+
     conn.close()
     interval_min = get_interval_seconds() // 60
     return render_template('devices.html', devices=devices, switches=switches)

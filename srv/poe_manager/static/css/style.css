@@ -53,7 +53,7 @@ pre {
 }
 
 .content-wrapper {
-    max-width: 1024px;
+    max-width: 1080px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -101,4 +101,51 @@ pre {
     right: 10px;
     font-size: 0.9em;
     color: gray;
+}
+
+/* Tabelle anpassen */
+.custom-table input,
+.custom-table select {
+    height: 28px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* Spaltenbreiten */
+.custom-table .col-small {
+    width: 100px; /* Hostname, Port */
+}
+
+.custom-table .col-ip {
+    width: 120px; /* IP-Adresse schmaler */
+}
+
+.custom-table .col-mac {
+    width: 120px; /* MAC-Adresse schmaler */
+}
+
+/* Checkbox sichtbar auch bei disabled */
+.checkbox-visible:disabled {
+    opacity: 1;  /* nicht ausgegraut */
+    cursor: not-allowed;
+}
+
+/* Aktiv-Label für Neues Gerät */
+label.text-white {
+    color: white !important;
+}
+
+
+.checkbox-visible:not(:checked) {
+    accent-color: #dc3545; /* rot wenn unchecked */
+}
+.checkbox-visible:disabled {
+    cursor: not-allowed;
+    opacity: 1; /* verhindert Ausgrauen */
+}
+
+.custom-actions {
+    gap: 0.5rem; /* horizontaler Abstand zwischen Buttons */
+    margin: auto 0;
+    background: #fff;
 }
