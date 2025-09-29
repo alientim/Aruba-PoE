@@ -8,21 +8,21 @@
 <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#userModal" onclick="openUserModal()">Neuen Benutzer</button>
 {% endif %}
 
-<table class="table table-bordered">
+<table class="table table-bordered custom-table">
     <thead>
         <tr>
-            <th>Username</th>
-            <th>Rolle</th>
+            <th class="col-small">Username</th>
+            <th class="col-small">Rolle</th>
             {% if current_user.is_admin %}<th>Aktionen</th>{% endif %}
         </tr>
     </thead>
     <tbody>
         {% for u in users %}
         <tr>
-            <td>{{ u['username'] }}</td>
-            <td>{% if u['is_admin'] %}Admin{% else %}User{% endif %}</td>
+            <td class="col-small">{{ u['username'] }}</td>
+            <td class="col-small">{% if u['is_admin'] %}Admin{% else %}User{% endif %}</td>
             {% if current_user.is_admin %}
-            <td>
+            <td class="custom-actions d-flex gap-1 align-items-center">
                 <!-- Rolle ändern -->
                 <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
                         data-bs-target="#roleModal"
@@ -49,6 +49,7 @@
     </tbody>
 </table>
 
+<!-- Modals bleiben unverändert -->
 <!-- Modal für neuen Benutzer -->
 <div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
@@ -159,7 +160,6 @@ function openRoleModal(user_id, username, is_admin) {
 function openPasswordModal(user_id, username) {
     document.getElementById('password_user_id').value = user_id;
     document.getElementById('password_username').value = username;
-    // Nur das Passwort-Feld zurücksetzen
     document.querySelector("#passwordForm input[name='new_password']").value = "";
 }
 </script>

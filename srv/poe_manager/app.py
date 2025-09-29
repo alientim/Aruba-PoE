@@ -86,7 +86,8 @@ def logout():
 def index():
     conn = sqlite3.connect("sqlite.db")
     c = conn.cursor()
-    c.execute("SELECT mac, name FROM devices")
+    # is_active mit abfragen
+    c.execute("SELECT mac, name, is_active FROM devices")
     devices = c.fetchall()
     conn.close()
 

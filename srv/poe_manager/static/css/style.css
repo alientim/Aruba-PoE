@@ -117,12 +117,13 @@ pre {
 }
 
 .custom-table .col-ip {
-    width: 120px; /* IP-Adresse schmaler */
+    width: 140px; /* IP-Adresse schmaler */
 }
 
 .custom-table .col-mac {
-    width: 120px; /* MAC-Adresse schmaler */
+    width: 140px; /* MAC-Adresse schmaler */
 }
+
 
 /* Checkbox sichtbar auch bei disabled */
 .checkbox-visible:disabled {
@@ -145,7 +146,7 @@ label.text-white {
 }
 
 .custom-actions {
-    gap: 0.5rem; /* horizontaler Abstand zwischen Buttons */
-    margin: auto 0;
+    margin: auto 0; 
     background: #fff;
 }
+
