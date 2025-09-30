@@ -17,6 +17,7 @@ __pycache__/
 !etc/systemd/system/
 !etc/systemd/system/rpi*.service
 !etc/systemd/system/rpi*.timer
+!etc/systemd/system/poe*.service
 !etc/nginx/
 !etc/nginx/sites-enabled/
 !etc/nginx/sites-enabled/default

@@ -1,0 +1,16 @@
+[Unit]
+Description=PoE Manager Web App
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/srv/poe_manager
+# Nutze die virtuelle Umgebung
+ExecStart=/srv/poe_manager/venv/bin/python3 /srv/poe_manager/app.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
