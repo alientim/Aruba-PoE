@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS devices (
     switch_hostname TEXT NOT NULL,
     port TEXT NOT NULL,
     name TEXT NOT NULL,
+    is_active INTEGER DEFAULT 0
     FOREIGN KEY (switch_hostname) REFERENCES switches(hostname)
 );
 """)
