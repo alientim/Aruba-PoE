@@ -157,3 +157,7 @@ label.text-white {
 .white {
     color: #ffffff;
 }
+
+button.login {
+    background-color: #ff7100;
+}
