@@ -150,6 +150,10 @@ label.text-white {
     background: #fff;
 }
 
-.white {
+.black {
     color: #000000;
+}
+
+.white {
+    color: #ffffff;
 }
