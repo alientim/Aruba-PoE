@@ -113,7 +113,7 @@ pre {
 
 /* Spaltenbreiten */
 .custom-table .col-small {
-    width: 100px; /* Hostname, Port */
+    width: 140px; /* Hostname, Port */
 }
 
 .custom-table .col-ip {
