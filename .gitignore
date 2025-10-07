@@ -17,6 +17,7 @@ __pycache__/
 !etc/systemd/system/
 !etc/systemd/system/rpi*.service
 !etc/systemd/system/rpi*.timer
+!etc/systemd/system/poe*.service
 !etc/nginx/
 !etc/nginx/sites-enabled/
 !etc/nginx/sites-enabled/default
@@ -39,7 +40,8 @@ __pycache__/
 !/srv/poe_manager/static/css/*
 !/srv/poe_manager/static/js/
 !/srv/poe_manager/static/js/*
-
+!/srv/poe_manager/static/images/
+!/srv/poe_manager/static/images/*
 
 # Optional: SQLite DB ignorieren (falls du nicht willst, dass Passwörter im Repo landen)
 # /srv/poe_manager/sqlite.db

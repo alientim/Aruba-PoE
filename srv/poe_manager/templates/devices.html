@@ -3,22 +3,14 @@
 
 <h2>Devices</h2>
 
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <div class="mt-2 alert alert-info">
-        {% for message in messages %}{{ message }}<br>{% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
-
 {% if current_user.is_admin %}
 <h4>Neues Gerät hinzufügen</h4>
 <form method="post" class="row g-2 mb-4">
     <input type="hidden" name="add_device" value="1">
-    <div class="col"><input type="text" name="name" placeholder="Hostname" class="form-control" required></div>
-    <div class="col"><input type="text" name="rpi_ip" placeholder="IP-Adresse" class="form-control" required></div>
-    <div class="col"><input type="text" name="mac" placeholder="MAC-Adresse" class="form-control" required></div>
-    <div class="col"><input type="text" name="port" placeholder="Port" class="form-control" required></div>
+    <div class="col col-small"><input type="text" name="name" placeholder="Hostname" class="form-control" required></div>
+    <div class="col col-ip"><input type="text" name="rpi_ip" placeholder="IP-Adresse" class="form-control" required></div>
+    <div class="col col-mac"><input type="text" name="mac" placeholder="MAC-Adresse" class="form-control" required></div>
+    <div class="col col-small"><input type="text" name="port" placeholder="Port" class="form-control" required></div>
     <div class="col">
         <select name="switch_hostname" class="form-control" required>
             <option value="">Switch wählen</option>
@@ -27,57 +19,77 @@
             {% endfor %}
         </select>
     </div>
+    <div class="col d-flex align-items-center">
+        <input type="checkbox" name="is_active" value="0" unchecked id="new_is_active">
+        <label for="new_is_active" class="ms-2 mb-0 text-white">Aktiv</label>
+    </div>
     <div class="col"><button class="btn btn-success w-100">Hinzufügen</button></div>
 </form>
 {% endif %}
 
-<table class="table table-bordered">
+<table class="table table-bordered custom-table">
     <thead>
         <tr>
-            <th>Hostname</th>
-            <th>IP-Adresse</th>
-            <th>MAC-Adresse</th>
+            <th class="col-small">Hostname</th>
+            <th class="col-ip">IP-Adresse</th>
+            <th class="col-mac">MAC-Adresse</th>
             <th>Switch</th>
-            <th>Port</th>
+            <th class="col-small">Port</th>
+            <th>Aktiv</th>
             {% if current_user.is_admin %}<th>Aktionen</th>{% endif %}
         </tr>
     </thead>
     <tbody>
         {% for d in devices %}
         <tr>
+            <td class="col-small"><input name="name" value="{{ d['name'] }}" class="form-control" required disabled></td>
+            <td class="col-ip"><input name="rpi_ip" value="{{ d['rpi_ip'] }}" class="form-control" required disabled></td>
+            <td class="col-mac"><input name="mac" value="{{ d['mac'] }}" class="form-control" required disabled></td>
+            <td>
+                <select name="switch_hostname" class="form-control" disabled required>
+                    {% for sw in switches %}
+                        <option value="{{ sw['hostname'] }}" {% if sw['hostname']==d['switch_hostname'] %}selected{% endif %}>
+                            {{ sw['hostname'] }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td class="col-small"><input name="port" value="{{ d['port'] }}" class="form-control" required disabled></td>
+            <td class="custom-checkbox">
+                <input type="checkbox" name="is_active" value="1" {% if d['is_active'] %}checked{% endif %} disabled class="checkbox-visible">
+            </td>
             {% if current_user.is_admin %}
-            <form method="post">
-                <input type="hidden" name="edit_device" value="1">
-                <input type="hidden" name="old_mac" value="{{ d['mac'] }}">
-                <td><input name="name" value="{{ d['name'] }}" class="form-control" required></td>
-                <td><input name="rpi_ip" value="{{ d['rpi_ip'] }}" class="form-control" required></td>
-                <td><input name="mac" value="{{ d['mac'] }}" class="form-control" required></td>
-                <td>
-                    <select name="switch_hostname" class="form-control" required>
-                        {% for sw in switches %}
-                            <option value="{{ sw['hostname'] }}" {% if sw['hostname']==d['switch_hostname'] %}selected{% endif %}>
-                                {{ sw['hostname'] }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </td>
-                <td><input name="port" value="{{ d['port'] }}" class="form-control" required></td>
-                <td class="d-flex gap-1">
-                    <button class="btn btn-primary btn-sm">Speichern</button>
-                    <button name="delete_device" value="{{ d['mac'] }}" class="btn btn-danger btn-sm"
+            <td class="custom-actions">
+                <!-- Bearbeiten Button -->
+                <button type="button" class="btn btn-warning btn-sm" onclick="enableEdit(this)">Bearbeiten</button>
+
+                <!-- Speichern Button -->
+                <form method="post" style="display:inline;">
+                    <input type="hidden" name="edit_device" value="1">
+                    <input type="hidden" name="old_mac" value="{{ d['mac'] }}">
+                    <button class="btn btn-primary btn-sm d-none" type="submit">Speichern</button>
+                </form>
+
+                <!-- Löschen Button in eigenem Formular -->
+                <form method="post" style="display:inline;">
+                    <input type="hidden" name="delete_device" value="{{ d['mac'] }}">
+                    <button class="btn btn-danger btn-sm"
                         onclick="return confirm('Willst du das Gerät wirklich löschen?');">Löschen</button>
-                </td>
-            </form>
-            {% else %}
-            <td>{{ d['name'] }}</td>
-            <td>{{ d['rpi_ip'] }}</td>
-            <td>{{ d['mac'] }}</td>
-            <td>{{ d['switch_hostname'] }}</td>
-            <td>{{ d['port'] }}</td>
+                </form>
+            </td>
             {% endif %}
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+<script>
+function enableEdit(btn) {
+    const row = btn.closest('tr');
+    row.querySelectorAll('input, select').forEach(el => el.disabled = false); // Inputs aktivieren
+    btn.classList.add('d-none'); // Bearbeiten ausblenden
+    row.querySelector('button.btn-primary').classList.remove('d-none'); // Speichern sichtbar
+}
+</script>
 
 {% endblock %}

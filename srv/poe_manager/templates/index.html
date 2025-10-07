@@ -8,8 +8,16 @@
         <div class="card text-center p-2">
             <div class="card-header">{{ d[1] }}</div>
             <div class="card-body">
-                <span class="fw-bold" style="color: {% if status[d[0]]=='online' %}green{% else %}red{% endif %};">
-                    {% if status[d[0]] %}{{ status[d[0]]|capitalize }}{% else %}unbekannt{% endif %}
+                <span class="fw-bold" style="color: 
+                    {% if d[2] == 0 %}gray
+                    {% elif status[d[0]]=='online' %}green
+                    {% else %}red
+                    {% endif %};">
+                    {% if d[2] == 0 %}
+                        Deaktiviert
+                    {% else %}
+                        {% if status[d[0]] %}{{ status[d[0]]|capitalize }}{% else %}Unbekannt{% endif %}
+                    {% endif %}
                 </span>
             </div>
         </div>

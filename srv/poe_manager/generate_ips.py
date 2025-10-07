@@ -11,8 +11,16 @@ def generate_ips_list():
     # Alle Switches laden
     switches = {row['hostname']: row for row in conn.execute("SELECT hostname, ip, username, password FROM switches")}
     
-    # Alle Geräte laden
-    devices = conn.execute("SELECT mac, rpi_ip, port, name, switch_hostname FROM devices").fetchall()
+#    # Alle Geräte laden
+#    devices = conn.execute("SELECT mac, rpi_ip, port, name, switch_hostname FROM devices").fetchall()
+#    conn.close()
+
+    # Nur aktive Geräte laden
+    devices = conn.execute("""
+        SELECT mac, rpi_ip, port, name, switch_hostname 
+        FROM devices 
+        WHERE is_active=1
+    """).fetchall()
     conn.close()
 
     tmp = tempfile.NamedTemporaryFile(delete=False, mode='w', prefix='ips_', suffix='.list')

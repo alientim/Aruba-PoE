@@ -47,7 +47,7 @@ def get_devices():
     Liefert eine Liste aller Devices aus der Datenbank als Dictionaries.
     """
     conn = get_db_connection()
-    devices = conn.execute("SELECT mac, rpi_ip, port, name, switch_hostname FROM devices").fetchall()
+    devices = conn.execute("SELECT mac, rpi_ip, port, name, switch_hostname, is_active FROM devices ORDER BY name ASC").fetchall()
     conn.close()
     return devices
 
@@ -86,7 +86,8 @@ def logout():
 def index():
     conn = sqlite3.connect("sqlite.db")
     c = conn.cursor()
-    c.execute("SELECT mac, name FROM devices")
+    # is_active mit abfragen
+    c.execute("SELECT mac, name, is_active FROM devices ORDER BY name ASC")
     devices = c.fetchall()
     conn.close()
 
@@ -145,63 +146,99 @@ def devices():
     conn = get_db_connection()
     switches = conn.execute("SELECT hostname FROM switches").fetchall()
 
-    # Inline-Add
-    if request.method == 'POST' and 'add_device' in request.form:
-        if not current_user.is_admin:
-            flash("Zugriff verweigert!")
-            return redirect(url_for('devices'))
-        mac = request.form['mac']
-        rpi_ip = request.form['rpi_ip']
-        port = request.form['port']
-        name = request.form['name']
-        switch_hostname = request.form['switch_hostname']
-        try:
-            conn.execute("INSERT INTO devices (mac, rpi_ip, port, name, switch_hostname) VALUES (?, ?, ?, ?, ?)",
-                         (mac, rpi_ip, port, name, switch_hostname))
-            conn.commit()
-            flash(f"Gerät {name} hinzugefügt.")
-        except sqlite3.IntegrityError:
-            flash("MAC existiert bereits oder Eingabefehler!")
+    if request.method == 'POST':
+        # -----------------------
+        # Inline-Add
+        # -----------------------
+        if 'add_device' in request.form:
+            if not current_user.is_admin:
+                flash("Zugriff verweigert!")
+                return redirect(url_for('devices'))
 
-    # Inline-Edit
-    if request.method == 'POST' and 'edit_device' in request.form:
-        if not current_user.is_admin:
-            flash("Zugriff verweigert!")
-            return redirect(url_for('devices'))
-        old_mac = request.form['old_mac']
-        mac = request.form['mac']
-        rpi_ip = request.form['rpi_ip']
-        port = request.form['port']
-        name = request.form['name']
-        switch_hostname = request.form['switch_hostname']
-        try:
-            conn.execute("""
-                UPDATE devices
-                SET mac=?, rpi_ip=?, port=?, name=?, switch_hostname=?
-                WHERE mac=?
-            """, (mac, rpi_ip, port, name, switch_hostname, old_mac))
-            conn.commit()
-            flash(f"Gerät {name} aktualisiert.")
-        except sqlite3.IntegrityError:
-            flash("MAC existiert bereits oder Eingabefehler!")
+            mac = request.form.get('mac')
+            rpi_ip = request.form.get('rpi_ip')
+            port = request.form.get('port')
+            name = request.form.get('name')
+            switch_hostname = request.form.get('switch_hostname')
+            is_active = 1 if 'is_active' in request.form else 0
 
-    # Inline-Delete
-    if request.method == 'POST' and 'delete_device' in request.form:
-        if not current_user.is_admin:
-            flash("Zugriff verweigert!")
-            return redirect(url_for('devices'))
-        del_mac = request.form['delete_device']
-        conn.execute("DELETE FROM devices WHERE mac=?", (del_mac,))
-        conn.commit()
-        flash(f"Gerät {del_mac} gelöscht.")
+            if not all([mac, rpi_ip, port, name, switch_hostname]):
+                flash("Alle Felder müssen ausgefüllt sein!")
+                return redirect(url_for('devices'))
 
+            try:
+                conn.execute("""
+                    INSERT INTO devices (mac, rpi_ip, port, name, switch_hostname, is_active)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (mac, rpi_ip, port, name, switch_hostname, is_active))
+                conn.commit()
+                flash(f"Gerät {name} hinzugefügt.")
+            except sqlite3.IntegrityError:
+                flash("MAC existiert bereits oder Eingabefehler!")
+
+        # -----------------------
+        # Inline-Edit
+        # -----------------------
+        elif 'edit_device' in request.form:
+            if not current_user.is_admin:
+                flash("Zugriff verweigert!")
+                return redirect(url_for('devices'))
+
+            old_mac = request.form.get('old_mac')
+            mac = request.form.get('mac')
+            rpi_ip = request.form.get('rpi_ip')
+            port = request.form.get('port')
+            name = request.form.get('name')
+            switch_hostname = request.form.get('switch_hostname')
+            is_active = 1 if 'is_active' in request.form else 0
+
+            if not all([old_mac, mac, rpi_ip, port, name, switch_hostname]):
+                flash("Alle Felder müssen ausgefüllt sein!")
+                return redirect(url_for('devices'))
+
+            try:
+                conn.execute("""
+                    UPDATE devices
+                    SET mac=?, rpi_ip=?, port=?, name=?, switch_hostname=?, is_active=?
+                    WHERE mac=?
+                """, (mac, rpi_ip, port, name, switch_hostname, is_active, old_mac))
+                conn.commit()
+                flash(f"Gerät {name} aktualisiert.")
+            except sqlite3.IntegrityError:
+                flash("MAC existiert bereits oder Eingabefehler!")
+
+        # -----------------------
+        # Inline-Delete
+        # -----------------------
+        elif 'delete_device' in request.form:
+            if not current_user.is_admin:
+                flash("Zugriff verweigert!")
+                return redirect(url_for('devices'))
+
+            del_mac = request.form.get('delete_device')
+            if del_mac:
+                device = conn.execute("SELECT name FROM devices WHERE mac=?", (del_mac,)).fetchone()
+                hostname = device['name'] if device else del_mac
+                conn.execute("DELETE FROM devices WHERE mac=?", (del_mac,))
+                conn.commit()
+                flash(f"Gerät {hostname} gelöscht.")
+            else:
+                flash("Keine MAC-Adresse übermittelt!")
+
+        return redirect(url_for('devices'))
+
+    # -----------------------
+    # Devices für Anzeige
+    # -----------------------
     devices = conn.execute("""
-        SELECT devices.mac, devices.rpi_ip, devices.port, devices.name, switches.hostname AS switch_hostname
+        SELECT devices.mac, devices.rpi_ip, devices.port, devices.name, devices.is_active,
+               switches.hostname AS switch_hostname
         FROM devices
-        JOIN switches ON devices.switch_hostname = switches.hostname
+        LEFT JOIN switches ON devices.switch_hostname = switches.hostname
+        ORDER BY switches.hostname ASC
     """).fetchall()
+
     conn.close()
-    interval_min = get_interval_seconds() // 60
     return render_template('devices.html', devices=devices, switches=switches)
 
 @app.route('/switches', methods=['GET', 'POST'])
@@ -253,6 +290,7 @@ def switches():
             flash("Zugriff verweigert!")
             return redirect(url_for('switches'))
         del_hostname = request.form['delete_switch']
+        conn.execute("UPDATE devices SET switch_hostname=NULL WHERE switch_hostname=?", (del_hostname,))
         conn.execute("DELETE FROM switches WHERE hostname=?", (del_hostname,))
         conn.commit()
         flash(f"Switch {del_hostname} gelöscht.")
